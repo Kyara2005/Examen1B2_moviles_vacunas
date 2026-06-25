@@ -1,0 +1,200 @@
+// ============================================================
+// lib/features/vaccinations/presentation/providers/vaccination_provider.dart
+// ============================================================
+ 
+final vaccinationRepositoryProvider = Provider<VaccinationRepository>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  final isar = ref.watch(isarProvider);
+  final connectivity = ref.watch(connectivityServiceProvider);
+ 
+  return VaccinationRepositoryImpl(
+    VaccinationLocalDataSource(isar),
+    VaccinationRemoteDataSource(client),
+    connectivity,
+  );
+});
+ 
+// Provider para vacunaciones de un sector
+final vaccinationsBySectorProvider = FutureProvider.family<List<VaccinationEntity>, String>(
+  (ref, sectorId) async {
+    final repo = ref.watch(vaccinationRepositoryProvider);
+    final result = await repo.getVaccinationsBySector(sectorId);
+    return result.fold(
+      (failure) => throw Exception(failure.message),
+      (vaccinations) => vaccinations,
+    );
+  },
+);
+ 
+// Provider para conteo de pendientes
+final unsyncedCountProvider = FutureProvider<int>((ref) async {
+  final repo = ref.watch(vaccinationRepositoryProvider);
+  final result = await repo.getUnsyncedCount();
+  return result.fold((f) => 0, (count) => count);
+});
+ 
+// Estado del formulario de vacunación
+class VaccinationFormState {
+  final bool isLoading;
+  final String? error;
+  final bool success;
+  final bool hasCameraPermission;
+  final bool hasLocationPermission;
+  final File? selectedPhoto;
+  final double? latitude;
+  final double? longitude;
+ 
+  const VaccinationFormState({
+    this.isLoading = false,
+    this.error,
+    this.success = false,
+    this.hasCameraPermission = false,
+    this.hasLocationPermission = false,
+    this.selectedPhoto,
+    this.latitude,
+    this.longitude,
+  });
+ 
+  VaccinationFormState copyWith({
+    bool? isLoading,
+    String? error,
+    bool? success,
+    bool? hasCameraPermission,
+    bool? hasLocationPermission,
+    File? selectedPhoto,
+    double? latitude,
+    double? longitude,
+  }) {
+    return VaccinationFormState(
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      success: success ?? this.success,
+      hasCameraPermission: hasCameraPermission ?? this.hasCameraPermission,
+      hasLocationPermission: hasLocationPermission ?? this.hasLocationPermission,
+      selectedPhoto: selectedPhoto ?? this.selectedPhoto,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+    );
+  }
+}
+ 
+class VaccinationFormNotifier extends StateNotifier<VaccinationFormState> {
+  final VaccinationRepository _repository;
+  final VaccinationRemoteDataSource _remoteDataSource;
+ 
+  VaccinationFormNotifier(this._repository, this._remoteDataSource)
+      : super(const VaccinationFormState());
+ 
+  Future<void> requestPermissions() async {
+    final cameraStatus = await Permission.camera.request();
+    final locationStatus = await Permission.locationWhenInUse.request();
+ 
+    state = state.copyWith(
+      hasCameraPermission: cameraStatus.isGranted,
+      hasLocationPermission: locationStatus.isGranted,
+    );
+  }
+ 
+  Future<void> pickPhoto() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+    if (image != null) {
+      state = state.copyWith(selectedPhoto: File(image.path));
+    }
+  }
+ 
+  Future<void> getCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      state = state.copyWith(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (e) {
+      state = state.copyWith(error: 'No se pudo obtener la ubicación');
+    }
+  }
+ 
+  Future<bool> submitVaccination({
+    required String ownerName,
+    required String ownerCedula,
+    required String ownerPhone,
+    required String petType,
+    required String petName,
+    required String petAge,
+    required String petSex,
+    required String vaccine,
+    required String observations,
+    required String sectorId,
+    required String vaccinatorId,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+ 
+    try {
+      String? photoUrl;
+ 
+      // Subir foto si existe
+      if (state.selectedPhoto != null) {
+        final localId = const Uuid().v4();
+        try {
+          photoUrl = await _remoteDataSource.uploadPhoto(
+            state.selectedPhoto!.path,
+            localId,
+          );
+        } catch (e) {
+          // Si falla la foto, continuar sin ella (offline scenario)
+          debugPrint('Error subiendo foto: $e');
+        }
+      }
+ 
+      final vaccination = VaccinationEntity(
+        ownerName: ownerName,
+        ownerCedula: ownerCedula,
+        ownerPhone: ownerPhone,
+        petType: petType,
+        petName: petName,
+        petAge: petAge,
+        petSex: petSex,
+        vaccine: vaccine,
+        observations: observations,
+        photoUrl: photoUrl,
+        latitude: state.latitude,
+        longitude: state.longitude,
+        vaccinatedAt: DateTime.now(),
+        sectorId: sectorId,
+        vaccinatorId: vaccinatorId,
+        isSynced: false,
+      );
+ 
+      final result = await _repository.createVaccination(vaccination);
+ 
+      return result.fold(
+        (failure) {
+          state = state.copyWith(isLoading: false, error: failure.message);
+          return false;
+        },
+        (_) {
+          state = state.copyWith(isLoading: false, success: true);
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+}
+ 
+final vaccinationFormProvider =
+    StateNotifierProvider<VaccinationFormNotifier, VaccinationFormState>((ref) {
+  final repo = ref.watch(vaccinationRepositoryProvider);
+  final client = ref.watch(supabaseClientProvider);
+  return VaccinationFormNotifier(repo, VaccinationRemoteDataSource(client));
+});

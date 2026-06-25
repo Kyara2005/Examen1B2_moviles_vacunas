@@ -1,0 +1,133 @@
+// ============================================================
+// lib/app_router.dart
+// ============================================================
+ 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+ 
+import 'features/auth/presentation/screens/splash_screen.dart';
+import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/auth/presentation/screens/change_password_screen.dart';
+import 'features/auth/presentation/screens/forgot_password_screen.dart';
+import 'features/auth/presentation/providers/auth_provider.dart';
+import 'features/dashboard/presentation/screens/coordinator_dashboard_screen.dart';
+import 'features/dashboard/presentation/screens/brigade_dashboard_screen.dart';
+import 'features/dashboard/presentation/screens/vaccinator_dashboard_screen.dart';
+import 'features/sectors/presentation/screens/sectors_list_screen.dart';
+import 'features/sectors/presentation/screens/sector_form_screen.dart';
+import 'features/users/presentation/screens/users_list_screen.dart';
+import 'features/users/presentation/screens/user_form_screen.dart';
+import 'features/vaccinations/presentation/screens/vaccination_form_screen.dart';
+import 'features/vaccinations/presentation/screens/vaccinations_list_screen.dart';
+import 'core/constants/app_strings.dart';
+ 
+// Rutas nombradas
+class AppRoutes {
+  static const splash = '/';
+  static const login = '/login';
+  static const changePassword = '/change-password';
+  static const forgotPassword = '/forgot-password';
+  static const campaignDashboard = '/campaign-dashboard';
+  static const brigadeDashboard = '/brigade-dashboard';
+  static const vaccinatorDashboard = '/vaccinator-dashboard';
+  static const sectors = '/sectors';
+  static const sectorForm = '/sectors/form';
+  static const users = '/users';
+  static const userForm = '/users/form';
+  static const vaccinationForm = '/vaccinations/form';
+  static const vaccinationsList = '/vaccinations';
+}
+ 
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authStateProvider);
+ 
+  return GoRouter(
+    initialLocation: AppRoutes.splash,
+    // Refresh cuando cambia auth
+    refreshListenable: GoRouterRefreshStream(
+      Supabase.instance.client.auth.onAuthStateChange,
+    ),
+    redirect: (context, state) {
+      final isAuthenticated = Supabase.instance.client.auth.currentUser != null;
+      final isSplash = state.matchedLocation == AppRoutes.splash;
+      final isLogin = state.matchedLocation == AppRoutes.login;
+      final isForgotPassword = state.matchedLocation == AppRoutes.forgotPassword;
+ 
+      // Si no está autenticado, ir a login
+      if (!isAuthenticated && !isLogin && !isForgotPassword && !isSplash) {
+        return AppRoutes.login;
+      }
+ 
+      // Si está autenticado y va al login, redirigir según rol
+      if (isAuthenticated && isLogin) {
+        return _getDashboardByRole(authState.role);
+      }
+ 
+      return null; // Sin redirección
+    },
+    routes: [
+      GoRoute(path: AppRoutes.splash, builder: (c, s) => const SplashScreen()),
+      GoRoute(path: AppRoutes.login, builder: (c, s) => const LoginScreen()),
+      GoRoute(path: AppRoutes.changePassword, builder: (c, s) => const ChangePasswordScreen()),
+      GoRoute(path: AppRoutes.forgotPassword, builder: (c, s) => const ForgotPasswordScreen()),
+      GoRoute(path: AppRoutes.campaignDashboard, builder: (c, s) => const CoordinatorDashboardScreen()),
+      GoRoute(path: AppRoutes.brigadeDashboard, builder: (c, s) => const BrigadeDashboardScreen()),
+      GoRoute(path: AppRoutes.vaccinatorDashboard, builder: (c, s) => const VaccinatorDashboardScreen()),
+      GoRoute(path: AppRoutes.sectors, builder: (c, s) => const SectorsListScreen()),
+      GoRoute(
+        path: AppRoutes.sectorForm,
+        builder: (c, s) {
+          final sectorId = s.uri.queryParameters['id'];
+          return SectorFormScreen(sectorId: sectorId);
+        },
+      ),
+      GoRoute(path: AppRoutes.users, builder: (c, s) => const UsersListScreen()),
+      GoRoute(
+        path: AppRoutes.userForm,
+        builder: (c, s) {
+          final userId = s.uri.queryParameters['id'];
+          return UserFormScreen(userId: userId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.vaccinationForm,
+        builder: (c, s) {
+          final vaccinationId = s.uri.queryParameters['id'];
+          return VaccinationFormScreen(vaccinationId: vaccinationId);
+        },
+      ),
+      GoRoute(path: AppRoutes.vaccinationsList, builder: (c, s) => const VaccinationsListScreen()),
+    ],
+  );
+});
+ 
+String _getDashboardByRole(String? role) {
+  switch (role) {
+    case AppStrings.roleCampaignCoordinator:
+      return AppRoutes.campaignDashboard;
+    case AppStrings.roleBrigadeCoordinator:
+      return AppRoutes.brigadeDashboard;
+    case AppStrings.roleVaccinator:
+      return AppRoutes.vaccinatorDashboard;
+    default:
+      return AppRoutes.login;
+  }
+}
+ 
+/// Adapta el stream de Supabase Auth a Listenable para go_router
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+ 
+  late final dynamic _subscription;
+ 
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}

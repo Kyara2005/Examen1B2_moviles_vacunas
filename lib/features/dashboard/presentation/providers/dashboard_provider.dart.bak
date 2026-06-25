@@ -1,0 +1,53 @@
+// lib/features/dashboard/presentation/providers/dashboard_provider.dart
+// ============================================================
+ 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+ 
+final dashboardStatsProvider = FutureProvider<DashboardStatsEntity>((ref) async {
+  final client = Supabase.instance.client;
+  final isar = ref.watch(isarProvider);
+ 
+  // Obtener estadísticas de Supabase
+  final vaccinations = await client.from('vaccinations').select('''
+    pet_type,
+    sector_id,
+    vaccinator_id,
+    sectors(name),
+    app_users!vaccinator_id(first_name, last_name)
+  ''');
+ 
+  int totalDogs = 0;
+  int totalCats = 0;
+  final bySector = <String, int>{};
+  final byVaccinator = <String, int>{};
+ 
+  for (final v in vaccinations as List) {
+    if (v['pet_type'] == 'dog') totalDogs++;
+    if (v['pet_type'] == 'cat') totalCats++;
+ 
+    final sectorName = v['sectors']?['name'] as String? ?? 'Sin sector';
+    bySector[sectorName] = (bySector[sectorName] ?? 0) + 1;
+ 
+    final vaccinatorUser = v['app_users'] as Map?;
+    final vaccinatorName = vaccinatorUser != null
+        ? '${vaccinatorUser['first_name']} ${vaccinatorUser['last_name']}'
+        : 'Desconocido';
+    byVaccinator[vaccinatorName] = (byVaccinator[vaccinatorName] ?? 0) + 1;
+  }
+ 
+  // Contar pendientes offline
+  final pendingSync = await isar.vaccinationModels
+      .filter()
+      .isSyncedEqualTo(false)
+      .count();
+ 
+  return DashboardStatsEntity(
+    totalVaccinations: (vaccinations as List).length,
+    totalDogs: totalDogs,
+    totalCats: totalCats,
+    pendingSync: pendingSync,
+    bySector: bySector,
+    byVaccinator: byVaccinator,
+  );
+});

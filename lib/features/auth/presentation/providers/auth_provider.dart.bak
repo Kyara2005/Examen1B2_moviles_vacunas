@@ -1,0 +1,97 @@
+// ============================================================
+// lib/features/auth/presentation/providers/auth_provider.dart
+// ============================================================
+ 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+ 
+// Estado de autenticación
+class AuthState {
+  final UserEntity? user;
+  final bool isLoading;
+  final String? error;
+ 
+  const AuthState({this.user, this.isLoading = false, this.error});
+ 
+  String? get role => user?.role;
+  bool get isAuthenticated => user != null;
+  bool get mustChangePassword => user?.mustChangePassword ?? false;
+ 
+  AuthState copyWith({
+    UserEntity? user,
+    bool? isLoading,
+    String? error,
+  }) {
+    return AuthState(
+      user: user ?? this.user,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
+}
+ 
+class AuthNotifier extends StateNotifier<AuthState> {
+  final AuthRepository _repository;
+ 
+  AuthNotifier(this._repository) : super(const AuthState()) {
+    _init();
+  }
+ 
+  Future<void> _init() async {
+    state = state.copyWith(isLoading: true);
+    final result = await _repository.getCurrentUser();
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false),
+      (user) => state = state.copyWith(user: user, isLoading: false),
+    );
+  }
+ 
+  Future<bool> login(String email, String password) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repository.login(email: email, password: password);
+    return result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, error: failure.message);
+        return false;
+      },
+      (user) {
+        state = state.copyWith(user: user, isLoading: false);
+        return true;
+      },
+    );
+  }
+ 
+  Future<void> logout() async {
+    await _repository.logout();
+    state = const AuthState();
+  }
+ 
+  Future<bool> changePassword(String newPassword) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repository.changePassword(newPassword: newPassword);
+    return result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, error: failure.message);
+        return false;
+      },
+      (_) {
+        // Actualizar el usuario local para reflejar que ya no debe cambiar contraseña
+        if (state.user != null) {
+          state = state.copyWith(isLoading: false);
+        }
+        return true;
+      },
+    );
+  }
+}
+ 
+// Providers
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  final dataSource = AuthRemoteDataSource(client);
+  return AuthRepositoryImpl(dataSource);
+});
+ 
+final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+  return AuthNotifier(ref.watch(authRepositoryProvider));
+});

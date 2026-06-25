@@ -1,0 +1,200 @@
+// lib/features/dashboard/presentation/screens/vaccinator_dashboard_screen.dart
+// Dashboard simplificado para el vacunador
+// ============================================================
+ 
+class VaccinatorDashboardScreen extends ConsumerWidget {
+  const VaccinatorDashboardScreen({super.key});
+ 
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+    final unsyncedCount = ref.watch(unsyncedCountProvider);
+ 
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mi Panel'),
+        actions: [
+          PopupMenuButton(
+            icon: const Icon(Icons.more_vert),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const Row(children: [
+                  Icon(Icons.logout, color: AppColors.error),
+                  SizedBox(width: 8),
+                  Text('Cerrar Sesión', style: TextStyle(color: AppColors.error)),
+                ]),
+                onTap: () async {
+                  await ref.read(authStateProvider.notifier).logout();
+                  if (context.mounted) context.go(AppRoutes.login);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Bienvenida
+          Card(
+            color: AppColors.primary,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Bienvenido,',
+                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                  ),
+                  Text(
+                    authState.user?.fullName ?? '',
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Vacunador de Campo',
+                    style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+ 
+          const SizedBox(height: 16),
+ 
+          // Estado de sincronización
+          unsyncedCount.when(
+            data: (count) => count > 0
+                ? Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.warning.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.warning.withOpacity(0.4)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.sync_problem, color: AppColors.warning),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '$count registro(s) pendiente(s) de sincronización',
+                            style: const TextStyle(color: AppColors.warning),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+ 
+          const SizedBox(height: 16),
+ 
+          // Acciones rápidas
+          const Text('Acciones Rápidas', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+ 
+          Row(
+            children: [
+              Expanded(
+                child: _ActionCard(
+                  title: 'Nueva\nVacunación',
+                  icon: Icons.add_circle_outline,
+                  color: AppColors.secondary,
+                  onTap: () => context.push(AppRoutes.vaccinationForm),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _ActionCard(
+                  title: 'Mis\nRegistros',
+                  icon: Icons.list_alt_outlined,
+                  color: AppColors.primary,
+                  onTap: () => context.push(AppRoutes.vaccinationsList),
+                ),
+              ),
+            ],
+          ),
+ 
+          const SizedBox(height: 16),
+ 
+          // Conectividad
+          Consumer(
+            builder: (context, ref, _) {
+              final isOnline = ref.watch(isOnlineProvider);
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isOnline
+                      ? AppColors.success.withOpacity(0.1)
+                      : AppColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isOnline ? Icons.wifi : Icons.wifi_off,
+                      color: isOnline ? AppColors.success : AppColors.error,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isOnline ? 'Conectado a internet' : 'Sin conexión - Modo offline activo',
+                      style: TextStyle(
+                        color: isOnline ? AppColors.success : AppColors.error,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push(AppRoutes.vaccinationForm),
+        icon: const Icon(Icons.vaccines),
+        label: const Text('Registrar'),
+        backgroundColor: AppColors.secondary,
+      ),
+    );
+  }
+}
+ 
+class _ActionCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+ 
+  const _ActionCard({
+    required this.title, required this.icon,
+    required this.color, required this.onTap,
+  });
+ 
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Icon(icon, size: 40, color: color),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: color, fontWeight: FontWeight.bold, height: 1.3),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,51 @@
+// lib/features/sectors/presentation/providers/sector_provider.dart
+// ============================================================
+ 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+ 
+// Sectores del usuario actual (según su asignación)
+final userSectorsProvider = FutureProvider<List<SectorEntity>>((ref) async {
+  final client = Supabase.instance.client;
+  final userId = client.auth.currentUser?.id;
+  if (userId == null) return [];
+ 
+  // Obtener app_user_id
+  final appUser = await client
+      .from('app_users')
+      .select('id, role')
+      .eq('auth_user_id', userId)
+      .single();
+ 
+  final appUserId = appUser['id'] as String;
+  final role = appUser['role'] as String;
+ 
+  List<dynamic> sectors;
+ 
+  if (role == 'campaign_coordinator') {
+    // Coordinador de campaña ve todos los sectores
+    sectors = await client.from('sectors').select().eq('is_active', true).order('name');
+  } else {
+    // Los demás ven solo sus sectores asignados
+    final assignments = await client
+        .from('sector_users')
+        .select('sector_id, sectors(*)')
+        .eq('user_id', appUserId);
+ 
+    sectors = (assignments as List).map((a) => a['sectors']).toList();
+  }
+ 
+  return (sectors as List)
+      .where((s) => s != null)
+      .map((s) => SectorModel.fromJson(s as Map<String, dynamic>).toEntity())
+      .toList();
+});
+ 
+// Todos los sectores (para coordinador de campaña)
+final allSectorsProvider = FutureProvider<List<SectorEntity>>((ref) async {
+  final client = Supabase.instance.client;
+  final response = await client.from('sectors').select().order('name');
+  return (response as List)
+      .map((s) => SectorModel.fromJson(s).toEntity())
+      .toList();
+});

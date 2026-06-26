@@ -1,17 +1,75 @@
-# examen1b2_flutter
+# Campana de vacunacion canina y felina
 
-A new Flutter project.
+Proyecto Flutter sencillo para gestionar una campana de vacunacion de perros y gatos usando Supabase.
 
-## Getting Started
+## Tecnologias
 
-This project is a starting point for a Flutter application.
+- Flutter
+- Supabase Auth, Database y Storage
+- SharedPreferences para registros pendientes offline
+- image_picker para fotografias
+- geolocator para GPS
+- connectivity_plus para detectar internet
 
-A few resources to get you started if this is your first Flutter project:
+## Estructura principal
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```text
+lib/
+├── main.dart
+├── constants/
+├── database/
+├── models/
+├── screens/
+├── services/
+├── utils/
+└── widgets/
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Configuracion
+
+1. Crear el proyecto en Supabase.
+2. Ejecutar `database/supabase_schema.sql` en SQL Editor.
+3. Crear un usuario inicial en Supabase Auth.
+4. Insertar ese usuario en `public.usuarios` con rol `coordinador_campana`.
+5. Ejecutar la app con las credenciales:
+
+```bash
+flutter run --dart-define=SUPABASE_URL=TU_URL --dart-define=SUPABASE_ANON_KEY=TU_KEY
+```
+
+La contrasena inicial para usuarios creados desde la app es:
+
+```text
+Ecuador2026
+```
+
+## Pantallas
+
+- Login: ingreso con correo y contrasena usando Supabase Auth.
+- Cambio de contrasena: aparece si el usuario tiene `debe_cambiar_clave`.
+- Recuperacion de contrasena: envia correo desde Supabase Auth.
+- Dashboard: muestra totales, perros, gatos, vacunaciones por sector, por vacunador y pendientes offline.
+- Sectores: permite crear, editar y eliminar sectores para el coordinador de campana.
+- Usuarios: permite crear coordinadores de brigada y vacunadores segun el rol.
+- Vacunaciones: lista registros y aplica permisos de edicion.
+- Registro de vacunacion: guarda datos, foto, GPS, fecha, hora, usuario y sector.
+- Editar vacunacion: permite actualizar datos basicos segun permisos.
+- Perfil: muestra datos del usuario actual.
+
+## Servicios
+
+- `AuthService`: login, cambio de clave, recuperacion y cierre de sesion.
+- `SectorService`: CRUD de sectores.
+- `UserService`: creacion y consulta de usuarios.
+- `VaccinationService`: CRUD de vacunaciones y subida de fotos.
+- `LocalStorageService`: guarda vacunaciones pendientes en SharedPreferences.
+- `SyncService`: sincroniza pendientes cuando vuelve internet.
+- `DashboardService`: calcula datos simples para el dashboard.
+
+## Offline
+
+Cuando no hay internet, el registro se guarda en SharedPreferences como pendiente. Cuando vuelve la conexion, `SyncService` envia esos registros a Supabase y limpia la lista local.
+
+## Nota para sustentacion
+
+El proyecto evita Provider, Riverpod, Bloc, Clean Architecture e inyeccion de dependencias. La logica sencilla vive en los `StatefulWidget` y la logica de Supabase vive en servicios pequenos.

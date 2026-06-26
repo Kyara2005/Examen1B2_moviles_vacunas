@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:examen1b2_flutter/models/vacunaciones.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:examen1b2_flutter/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const SimpleApp());
+  test('Vacunaciones convierte datos a mapa', () {
+    final vacunacion = Vacunaciones(
+      propietario: 'Maria Lopez',
+      cedula: '0102030405',
+      telefono: '0999999999',
+      tipoMascota: 'Perro',
+      nombreMascota: 'Firulais',
+      edadAproximada: '2 anos',
+      sexo: 'Macho',
+      vacuna: 'Antirrabica',
+      observaciones: 'Sin novedades',
+      fecha: '2026-06-25',
+      hora: '10:30',
+      usuarioId: 'usuario-1',
+      sectorId: 'sector-1',
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    final mapa = vacunacion.toMap();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(mapa['propietario'], 'Maria Lopez');
+    expect(mapa['tipo_mascota'], 'Perro');
+    expect(mapa['sincronizado'], true);
   });
 }

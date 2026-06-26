@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Icon(Icons.pets, size: 70, color: Colors.green),
                 const SizedBox(height: 12),
                 Text(
-                  'Campana de Vacunacion',
+                  'Campaña de Vacunación',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 24),
@@ -84,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _claveController,
-                  decoration: const InputDecoration(labelText: 'Contrasena'),
+                  decoration: const InputDecoration(labelText: 'Contraseña'),
                   obscureText: true,
                   validator: (value) => value == null || value.isEmpty
                       ? 'Ingrese la clave'
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialPageRoute(builder: (_) => const RecoveryScreen()),
                     );
                   },
-                  child: const Text('Recuperar contrasena'),
+                  child: const Text('Recuperar contraseña'),
                 ),
               ],
             ),

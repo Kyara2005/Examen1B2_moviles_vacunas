@@ -58,24 +58,24 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cambio de contrasena')),
+      appBar: AppBar(title: const Text('Cambio de contraseña')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Debe cambiar la contrasena inicial Ecuador2026.'),
+            const Text('Debe cambiar la contraseña inicial Ecuador2026.'),
             const SizedBox(height: 16),
             TextField(
               controller: _claveController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Nueva contrasena'),
+              decoration: const InputDecoration(labelText: 'Nueva contraseña'),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _confirmarController,
               obscureText: true,
               decoration: const InputDecoration(
-                labelText: 'Confirmar contrasena',
+                labelText: 'Confirmar contraseña',
               ),
             ),
             const SizedBox(height: 16),

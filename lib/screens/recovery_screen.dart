@@ -29,7 +29,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
           context: context,
           builder: (_) => const AlertDialog(
             title: Text('Correo enviado'),
-            content: Text('Revise su correo para cambiar la contrasena.'),
+            content: Text('Revise su correo para cambiar la contraseña.'),
           ),
         );
       }
@@ -47,7 +47,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Recuperar contrasena')),
+      appBar: AppBar(title: const Text('Recuperar contraseña')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -1,6 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permisos de ubicacion para GPS -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Permiso de camara para tomar fotos -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Permiso de internet para Supabase -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:label="examen1b2_flutter"
+        android:label="Vacumesticos"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

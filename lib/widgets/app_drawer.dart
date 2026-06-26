@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/app_user.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/misector_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/sectors_screen.dart';
 import '../screens/users_screen.dart';
@@ -50,6 +51,13 @@ class AppDrawer extends StatelessWidget {
               title: const Text('Sectores'),
               onTap: () => _abrir(context, SectorsScreen(usuario: usuario)),
             ),
+            // Mi sector: coordinador de brigada ve su sector asignado
+          if (usuario.rol == 'coordinador_brigada')
+            ListTile(
+              leading: const Icon(Icons.map),
+              title: const Text('Mi sector'),
+              onTap: () => _abrir(context, MySectorScreen(usuario: usuario)),
+            ),
           if (usuario.rol == 'coordinador_campana' ||
               usuario.rol == 'coordinador_brigada')
             ListTile(
@@ -62,6 +70,7 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Perfil'),
             onTap: () => _abrir(context, ProfileScreen(usuario: usuario)),
           ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Cerrar sesion'),

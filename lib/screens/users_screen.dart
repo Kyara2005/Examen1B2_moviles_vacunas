@@ -26,10 +26,9 @@ class _UsersScreenState extends State<UsersScreen> {
 
   // Carga usuarios segun el rol del usuario actual.
   void _cargarUsuarios() {
-    final rol = widget.usuario.rol == 'coordinador_brigada'
-        ? 'vacunador'
-        : null;
-    _usuariosFuture = UserService().obtenerUsuarios(rol: rol);
+    final rolAFiltrar =
+        widget.usuario.rol == 'coordinador_brigada' ? 'vacunador' : null;
+    _usuariosFuture = UserService().obtenerUsuarios(rol: rolAFiltrar);
   }
 
   // Abre el formulario para crear usuarios.
@@ -122,6 +121,89 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
+  // Abre el dialogo para reasignar el sector de un usuario existente.
+  Future<void> _mostrarFormularioReasignar(AppUser usuarioAEditar) async {
+    String? sectorId = usuarioAEditar.sectorId;
+    final sectores = await SectorService().obtenerSectores();
+    if (!mounted) return;
+
+    await showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          return AlertDialog(
+            title: Text('Reasignar sector a ${usuarioAEditar.nombres}'),
+            content: DropdownButtonFormField<String>(
+              value: sectorId,
+              decoration: const InputDecoration(labelText: 'Sector'),
+              items: sectores.map((Sector sector) {
+                return DropdownMenuItem(
+                  value: sector.id,
+                  child: Text(sector.nombre),
+                );
+              }).toList(),
+              onChanged: (value) =>
+                  setDialogState(() => sectorId = value),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  // Crear una copia del usuario con el nuevo sector
+                  final usuarioActualizado = AppUser(
+                    id: usuarioAEditar.id,
+                    cedula: usuarioAEditar.cedula,
+                    nombres: usuarioAEditar.nombres,
+                    apellidos: usuarioAEditar.apellidos,
+                    telefono: usuarioAEditar.telefono,
+                    correo: usuarioAEditar.correo,
+                    rol: usuarioAEditar.rol,
+                    sectorId: sectorId,
+                    debeCambiarClave: usuarioAEditar.debeCambiarClave,
+                  );
+                  await UserService().actualizarUsuario(usuarioActualizado);
+                  if (dialogContext.mounted) Navigator.pop(dialogContext);
+                  setState(_cargarUsuarios);
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // Elimina un usuario de la tabla usuarios.
+  Future<void> _eliminarUsuario(String id) async {
+    // Confirmar antes de eliminar
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Eliminar usuario'),
+        content: const Text('Esta accion no se puede deshacer. Continuar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true) {
+      await UserService().eliminarUsuario(id);
+      setState(_cargarUsuarios);
+    }
+  }
+
   Widget _campo(TextEditingController controller, String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -130,12 +212,6 @@ class _UsersScreenState extends State<UsersScreen> {
         decoration: InputDecoration(labelText: label),
       ),
     );
-  }
-
-  // Elimina un usuario de la tabla usuarios.
-  Future<void> _eliminarUsuario(String id) async {
-    await UserService().eliminarUsuario(id);
-    setState(_cargarUsuarios);
   }
 
   @override
@@ -156,19 +232,38 @@ class _UsersScreenState extends State<UsersScreen> {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
+
           final usuarios = snapshot.data!;
+
+          if (usuarios.isEmpty) {
+            return const Center(child: Text('No hay usuarios registrados'));
+          }
+
           return ListView.builder(
             itemCount: usuarios.length,
             itemBuilder: (context, index) {
-              final usuario = usuarios[index];
+              final u = usuarios[index];
               return Card(
                 child: ListTile(
                   leading: const Icon(Icons.person),
-                  title: Text(usuario.nombreCompleto),
-                  subtitle: Text('${usuario.rol} - ${usuario.correo}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _eliminarUsuario(usuario.id),
+                  title: Text(u.nombreCompleto),
+                  subtitle: Text('${u.rol} · ${u.correo}'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Boton para reasignar sector
+                      IconButton(
+                        icon: const Icon(Icons.edit_location_alt),
+                        tooltip: 'Reasignar sector',
+                        onPressed: () => _mostrarFormularioReasignar(u),
+                      ),
+                      // Boton para eliminar usuario
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: 'Eliminar usuario',
+                        onPressed: () => _eliminarUsuario(u.id),
+                      ),
+                    ],
                   ),
                 ),
               );

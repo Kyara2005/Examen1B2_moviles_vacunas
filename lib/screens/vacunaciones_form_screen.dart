@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/app_user.dart';
 import '../models/sector.dart';
 import '../models/vacunaciones.dart';
+import '../screens/dashboard_screen.dart';
 import '../services/sector_service.dart';
 import '../services/vaccination_service.dart';
 
@@ -36,6 +37,8 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
   double? _latitud;
   double? _longitud;
   bool _cargando = false;
+  bool _cargandoSectores = true;
+  bool _cargandoGps = true;
   List<Sector> _sectores = [];
 
   @override
@@ -45,38 +48,107 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     _obtenerUbicacion();
   }
 
+  @override
+  void dispose() {
+    _propietarioController.dispose();
+    _cedulaController.dispose();
+    _telefonoController.dispose();
+    _nombreMascotaController.dispose();
+    _edadController.dispose();
+    _vacunaController.dispose();
+    _observacionesController.dispose();
+    super.dispose();
+  }
+
   // Obtiene los sectores asignados al vacunador.
   Future<void> _cargarSectores() async {
-    final sectores = await SectorService().obtenerSectoresAsignados(
-      widget.usuario.id,
-    );
-    setState(() {
-      _sectores = sectores;
-      _sectorId = sectores.isNotEmpty
-          ? sectores.first.id
-          : widget.usuario.sectorId;
-    });
+    try {
+      final sectores = await SectorService().obtenerSectoresAsignados(
+        widget.usuario.id,
+      );
+      if (!mounted) return;
+      setState(() {
+        _sectores = sectores;
+        // FIX: asignar _sectorId despues de que los items ya existen
+        if (sectores.isNotEmpty) {
+          _sectorId = sectores.first.id;
+        } else if (widget.usuario.sectorId != null) {
+          _sectorId = widget.usuario.sectorId;
+        }
+        _cargandoSectores = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _cargandoSectores = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error cargando sectores: $e')),
+      );
+    }
   }
 
   // Obtiene la ubicacion actual del dispositivo.
   Future<void> _obtenerUbicacion() async {
-    final permiso = await Geolocator.requestPermission();
-    if (permiso == LocationPermission.denied ||
-        permiso == LocationPermission.deniedForever) {
-      return;
-    }
+    setState(() => _cargandoGps = true);
+    try {
+      final servicioActivo = await Geolocator.isLocationServiceEnabled();
+      if (!servicioActivo) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Active el GPS del dispositivo e intente de nuevo'),
+          ),
+        );
+        setState(() => _cargandoGps = false);
+        return;
+      }
+      LocationPermission permiso = await Geolocator.checkPermission();
+      if (permiso == LocationPermission.denied) {
+        permiso = await Geolocator.requestPermission();
+      }
 
-    final posicion = await Geolocator.getCurrentPosition();
-    setState(() {
-      _latitud = posicion.latitude;
-      _longitud = posicion.longitude;
-    });
+      if (permiso == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Permiso de ubicacion denegado permanentemente. '
+              'Activelo en Configuracion > Aplicaciones.',
+            ),
+            duration: Duration(seconds: 4),
+          ),
+        );
+        setState(() => _cargandoGps = false);
+        return;
+      }
+
+      if (permiso == LocationPermission.denied) {
+        setState(() => _cargandoGps = false);
+        return;
+      }
+
+      final posicion = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+ 
+      if (!mounted) return;
+      setState(() {
+        _latitud = posicion.latitude;
+        _longitud = posicion.longitude;
+        _cargandoGps = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _cargandoGps = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo obtener GPS: $e')),
+      );
+    }
   }
 
   // Toma una fotografia con la camara.
   Future<void> _tomarFoto() async {
     final picker = ImagePicker();
-    final imagen = await picker.pickImage(source: ImageSource.camera);
+    final imagen = await picker.pickImage(source: ImageSource.camera,imageQuality: 70,);
     if (imagen != null) {
       setState(() => _foto = File(imagen.path));
     }
@@ -116,10 +188,16 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     try {
       await VaccinationService().guardarVacunacion(vacunacion, _foto);
       if (mounted) {
-        ScaffoldMessenger.of(
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registro guardado')),
+        );
+        // En lugar de Navigator.pop(context):
+        Navigator.pushReplacement(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Registro guardado')));
-        Navigator.pop(context);
+          MaterialPageRoute(
+            builder: (_) => DashboardScreen(usuario: widget.usuario),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -132,10 +210,26 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     }
   }
 
+  // Navega de regreso al dashboard.
+  void _volverAlDashboard() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DashboardScreen(usuario: widget.usuario),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registro de vacunacion')),
+      appBar: AppBar(title: const Text('Registro de vacunacion'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _volverAlDashboard,
+          ),
+      ),
+      
       body: Form(
         key: _formKey,
         child: ListView(
@@ -168,36 +262,95 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
             const SizedBox(height: 12),
             _campo(_vacunaController, 'Vacuna aplicada'),
             _campo(_observacionesController, 'Observaciones', requerido: false),
-            DropdownButtonFormField<String>(
-              initialValue: _sectorId,
-              decoration: const InputDecoration(labelText: 'Sector'),
-              items: _sectores.map((sector) {
-                return DropdownMenuItem(
-                  value: sector.id,
-                  child: Text(sector.nombre),
-                );
-              }).toList(),
-              onChanged: (value) => setState(() => _sectorId = value),
-            ),
             const SizedBox(height: 12),
-            ListTile(
-              leading: const Icon(Icons.location_on),
-              title: Text(
-                _latitud == null
-                    ? 'GPS no capturado'
-                    : 'GPS: $_latitud, $_longitud',
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: _obtenerUbicacion,
+            if (_cargandoSectores)
+              const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 10),
+                      Text('Cargando sectores...'),
+                    ],
+                  ),
+                )
+              else if (_sectores.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    'No tiene sectores asignados. Contacte al coordinador.',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                )
+              else
+                DropdownButtonFormField<String>(
+                  initialValue: _sectorId,
+                  decoration: const InputDecoration(labelText: 'Sector'),
+                  items: _sectores.map((sector) {
+                    return DropdownMenuItem(
+                      value: sector.id,
+                      child: Text(sector.nombre),
+                    );
+                  }).toList(),
+                  onChanged: (value) => setState(() => _sectorId = value),
+                  validator: (value) =>
+                    value == null ? 'Seleccione un sector' : null,
+                ),
+
+            // GPS y fotografia
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: _cargandoGps
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(
+                        _latitud != null
+                            ? Icons.location_on
+                            : Icons.location_off,
+                        color: _latitud != null ? Colors.green : Colors.grey,
+                      ),
+                title: Text(
+                  _cargandoGps
+                      ? 'Obteniendo GPS...'
+                      : _latitud == null
+                          ? 'GPS no capturado'
+                          : 'GPS capturado',
+                ),
+                subtitle: _latitud != null
+                    ? Text(
+                        '${_latitud!.toStringAsFixed(6)}, '
+                        '${_longitud!.toStringAsFixed(6)}',
+                      )
+                    : null,
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Reintentar GPS',
+                  onPressed: _cargandoGps ? null : _obtenerUbicacion,
+                ),
               ),
             ),
+
+            const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: _tomarFoto,
               icon: const Icon(Icons.camera_alt),
               label: Text(_foto == null ? 'Tomar fotografia' : 'Cambiar foto'),
             ),
-            if (_foto != null) Image.file(_foto!, height: 160),
+            if (_foto != null) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(_foto!, height: 160, fit: BoxFit.cover),
+              ),
+            ],
             const SizedBox(height: 16),
             FilledButton(
               onPressed: _cargando ? null : _guardar,

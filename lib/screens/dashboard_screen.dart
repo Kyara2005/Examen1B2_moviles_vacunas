@@ -92,30 +92,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 valor: datos['pendientes'].toString(),
                 icono: Icons.cloud_off,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
                 'Vacunaciones por sector',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              ...porSector.entries.map((item) {
-                return ListTile(
-                  leading: const Icon(Icons.map),
-                  title: Text('Sector ${item.key}'),
-                  trailing: Text(item.value.toString()),
-                );
-              }),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              if (porSector.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text('Sin registros por sector'),
+                )
+              else
+                ...porSector.entries.map((entrada) {
+                  return Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.map),
+                      // Ahora muestra el nombre real del sector
+                      title: Text(entrada.key),
+                      trailing: Text(
+                        '${entrada.value} vacunaciones',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  );
+                }),
+              const SizedBox(height: 16),
               Text(
                 'Vacunaciones por vacunador',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              ...porVacunador.entries.map((item) {
-                return ListTile(
-                  leading: const Icon(Icons.person),
-                  title: Text('Usuario ${item.key}'),
-                  trailing: Text(item.value.toString()),
-                );
-              }),
+              const SizedBox(height: 8),
+              if (porVacunador.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text('Sin registros por vacunador'),
+                )
+              else
+                ...porVacunador.entries.map((entrada) {
+                  return Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.person),
+                      // Ahora muestra el nombre real del vacunador
+                      title: Text(entrada.key),
+                      trailing: Text(
+                        '${entrada.value} vacunaciones',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  );
+                }),
             ],
           );
         },
@@ -123,3 +149,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
+

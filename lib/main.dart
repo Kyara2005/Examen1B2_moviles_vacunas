@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants/app_constants.dart';
+import 'screens/dashboard_screen.dart';
+import 'services/auth_service.dart';
 import 'screens/login_screen.dart';
 import 'services/sync_service.dart';
 
@@ -16,11 +18,17 @@ void main() async {
   // Inicia la sincronizacion automatica cuando vuelve el internet.
   SyncService().iniciarSincronizacionAutomatica();
 
-  runApp(const VacunacionApp());
+  // Verificar si hay una sesion guardada localmente antes de mostrar el login
+  final usuarioGuardado = await AuthService().obtenerSesionLocal();
+
+  runApp(VacunacionApp(usuarioInicial: usuarioGuardado));
 }
 
 class VacunacionApp extends StatelessWidget {
-  const VacunacionApp({super.key});
+  // Usuario cargado desde el telefono; null si no habia sesion guardada
+  final usuarioInicial;
+
+  const VacunacionApp({super.key, required this.usuarioInicial});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +42,9 @@ class VacunacionApp extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
       ),
-      home: const LoginScreen(),
+      home: usuarioInicial != null
+          ? DashboardScreen(usuario: usuarioInicial)
+          : const LoginScreen(),
     );
   }
 }

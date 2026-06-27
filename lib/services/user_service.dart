@@ -55,6 +55,18 @@ class UserService {
     await _client.from('usuarios').update(usuario.toMap()).eq('id', usuario.id);
   }
 
+  // Asigna un sector al coordinador de brigada elegido.
+  // Se llama despues de crear o editar un sector con coordinador asignado.
+  Future<void> asignarSectorACoordinador({
+    required String coordinadorId,
+    required String? sectorId,
+  }) async {
+    await _client
+        .from('usuarios')
+        .update({'sector_id': sectorId})
+        .eq('id', coordinadorId);
+  }
+
   // Elimina el usuario de la tabla. En Auth se elimina desde Supabase.
   Future<void> eliminarUsuario(String id) async {
     await _client.from('usuarios').delete().eq('id', id);

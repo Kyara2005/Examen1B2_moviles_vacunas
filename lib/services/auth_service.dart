@@ -2,9 +2,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/app_user.dart';
 import 'supabase_service.dart';
+import 'local_storage_service.dart';
+
 
 class AuthService {
   final SupabaseClient _client = SupabaseService().client;
+  final _localStorage = LocalStorageService();
 
   // Inicia sesion y obtiene los datos del usuario.
   Future<AppUser> login(String correo, String clave) async {
@@ -18,7 +21,12 @@ class AuthService {
       throw Exception('No se pudo iniciar sesion');
     }
 
-    return obtenerUsuarioActual();
+    final usuario = await obtenerUsuarioActual();
+
+    // Guardar la sesion localmente para funcionar sin internet
+    await _localStorage.guardarSesion(usuario);
+
+    return usuario;
   }
 
   // Obtiene el usuario actual desde la tabla usuarios.
@@ -35,6 +43,10 @@ class AuthService {
         .single();
 
     return AppUser.fromMap(data);
+  }
+
+  Future<AppUser?> obtenerSesionLocal() async {
+    return _localStorage.obtenerSesion();
   }
 
   // Cambia la clave del usuario autenticado.
@@ -57,5 +69,6 @@ class AuthService {
   // Cierra la sesion.
   Future<void> cerrarSesion() async {
     await _client.auth.signOut();
+    await _localStorage.borrarSesion();
   }
 }

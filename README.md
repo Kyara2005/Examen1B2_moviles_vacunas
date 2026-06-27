@@ -1,4 +1,7 @@
 # Campaña de Vacunación Canina y Felina
+<p align="center">
+    <img width="30%" alt="icon" src="https://github.com/user-attachments/assets/8538e34a-5bec-4c27-93ba-c86b75d3626d" />
+</p>
 
 Aplicación móvil desarrollada en Flutter para gestionar campañas de vacunación de perros y gatos en distintos sectores de una ciudad. Usando Supabase como backend para autenticación, base de datos y almacenamiento de fotos.
 

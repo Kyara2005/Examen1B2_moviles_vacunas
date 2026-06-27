@@ -5,11 +5,16 @@
 
 Aplicación móvil desarrollada en Flutter para gestionar campañas de vacunación de perros y gatos en distintos sectores de una ciudad. Usando Supabase como backend para autenticación, base de datos y almacenamiento de fotos.
 
-## Link del video
+## Video demostrativo
 
-```text
-VIDEO FALTA
-```
+En el siguiente video se presenta:
+
+* Explicación del código desarrollado.
+* Demostración del funcionamiento de la aplicación.
+* Recorrido por el contenido del README.
+
+**Video:**
+https://youtu.be/dbsKEl0Mnzk
 
 ---
 
@@ -184,8 +189,136 @@ flutter pub get
 flutter run
 ```
 
+--------------------------
+
+# Capturas del funcionamiento
+
+## 🚀 Icono y Splash Screen
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/29886c4f-15e4-4d5a-84a7-427a18e079c6" width="30%">
+  <img src="https://github.com/user-attachments/assets/e1d889d4-b9cf-4374-98eb-84a585ca75b1" width="30%">
+</p>
+
 ---
 
-## Capturas de pantallas
+## 🔐 Login
 
-*(agregar capturas aquí)*
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5dca1497-1b3e-4923-b0c1-c7c875c07630" width="30%">
+</p>
+
+---
+
+## 🔑 Recuperar contraseña
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e4efe86d-8df8-43c3-9943-f73a52fed74b" width="30%">
+  <img src="https://github.com/user-attachments/assets/1f740cc2-35cc-4a16-87ef-50d8996d6296" width="30%">
+</p>
+
+---
+# 👤 Rol: Coordinador
+
+### Inicio
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e8ea11fb-f0f9-4155-aa88-1e5a2aeedef4" width="23%">
+  <img src="https://github.com/user-attachments/assets/3086ff32-f569-4d45-9728-7ecc374508e3" width="23%">
+  <img src="https://github.com/user-attachments/assets/84138792-a00c-4d83-989c-1fdc8c016c88" width="23%">
+  <img src="https://github.com/user-attachments/assets/7f57fcd1-2d43-49e6-baf2-9223e65e7e94" width="23%">
+</p>
+### Crear usuarios
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/05cf5827-da1a-4418-8ab8-8314fde9735b" width="30%">
+</p>
+
+### Perfil
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/bb8c5816-f013-4c89-a335-70ae8f73964f" width="30%">
+</p>
+
+---
+  # 👷 Rol: Brigada
+
+### Inicio
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0236f7c0-28ef-481a-abe5-199ad7cdbcec" width="30%">
+</p>
+
+### Dashboard
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7582eb21-c0f5-468a-a720-4df6563b1403" width="30%">
+</p>
+
+  ### Editor de vacunaciones
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4b91f53f-96a1-4a3b-86ee-2eeca4bfb11d" width="30%">
+  <img src="https://github.com/user-attachments/assets/e2dc6ab1-69b2-420d-9a29-290b40bdce42" width="30%">
+</p>
+
+### Mi sector
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c637d3cb-e573-44c6-b753-2fe2ef4b7f50" width="30%">
+</p>
+
+  <p align="center">
+      <img width="698" height="1600" alt="image" src="https://github.com/user-attachments/assets/4b91f53f-96a1-4a3b-86ee-2eeca4bfb11d" />
+      <img width="698" height="1600" alt="image" src="https://github.com/user-attachments/assets/e2dc6ab1-69b2-420d-9a29-290b40bdce42" />
+  </p>
+  Mi sector
+  <img width="698" height="1600" alt="image" src="https://github.com/user-attachments/assets/c637d3cb-e573-44c6-b753-2fe2ef4b7f50" />
+
+  ### Usuarios
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b8020e31-1422-461f-9331-997533199bf1" width="30%">
+</p>
+
+### Crear usuarios
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/191c6abd-a52a-4491-87d6-359f8efb2828" width="30%">
+</p>
+
+  ### Perfil
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c849a36e-4982-45ee-ad8b-4b3fc167b7e7" width="30%">
+</p>
+
+---
+
+# 💉 Rol: Vacunador
+
+### Inicio
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/40878d56-6397-42d4-8867-ed169651c820" width="30%">
+</p>
+
+### Dashboard
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a2f90688-38e2-4142-bee1-497e089c9f7b" width="30%">
+</p>
+
+### Vacunaciones
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/805af621-e3a6-4936-8708-b59ef735d7e3" width="30%">
+</p>
+
+### Registro de vacunación
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/abfb6d4a-4bf5-4d52-983a-fac7e0e2b119" width="30%">
+</p>
+```
+

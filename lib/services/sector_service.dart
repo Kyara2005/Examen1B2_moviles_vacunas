@@ -8,18 +8,15 @@ class SectorService {
   final _localStorage = LocalStorageService();
   final _connectivity = ConnectivityService();
 
-  // Obtiene todos los sectores.
   Future<List<Sector>> obtenerSectores() async {
     final data = await _client.from('sectores').select().order('nombre');
     return data.map<Sector>((item) => Sector.fromMap(item)).toList();
   }
 
-  // Obtiene solo los sectores asignados al usuario.
   Future<List<Sector>> obtenerSectoresAsignados(String usuarioId) async {
     final hayInternet = await _connectivity.tieneInternet();
 
     if (!hayInternet) {
-      // Sin internet: usar los sectores guardados en el telefono
       final sectoresGuardados = await _localStorage.obtenerSectoresGuardados();
       return sectoresGuardados;
     }
@@ -36,13 +33,11 @@ class SectorService {
     final data = await _client.from('sectores').select().eq('id', sectorId);
     final sectores = data.map<Sector>((item) => Sector.fromMap(item)).toList();
 
-    // Guardar en el telefono para tenerlos disponibles sin internet
     await _localStorage.guardarSectores(sectores);
 
     return sectores;
   }
 
-  // Crea un nuevo sector.
   Future<void> crearSector(String nombre, String descripcion) async {
     await _client.from('sectores').insert({
       'nombre': nombre,
@@ -50,7 +45,6 @@ class SectorService {
     });
   }
 
-  // Actualiza un sector.
   Future<void> actualizarSector(
     String id,
     String nombre,
@@ -67,7 +61,6 @@ class SectorService {
         .eq('id', id);
   }
 
-  // Elimina un sector.
   Future<void> eliminarSector(String id) async {
     await _client.from('sectores').delete().eq('id', id);
   }

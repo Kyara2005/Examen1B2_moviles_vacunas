@@ -6,7 +6,6 @@ class DashboardService {
   final _client = SupabaseService().client;
   final _localStorageService = LocalStorageService();
 
-  // Calcula los datos del dashboard con nombres reales
   Future<Map<String, dynamic>> obtenerDatos(AppUser usuario) async {
     var consulta = _client.from('vacunaciones').select();
 
@@ -19,19 +18,15 @@ class DashboardService {
     }
 
     final vacunaciones = await consulta;
-    // Paso 2: obtener los nombres de todos los sectores en un solo llamado
     final sectoresData = await _client.from('sectores').select('id, nombre');
 
-    // Convertir la lista de sectores a un mapa id -> nombre para buscar rapido
     final nombresSectores = <String, String>{
       for (final s in sectoresData) s['id'].toString(): s['nombre'] as String,
     };
-    // Paso 3: obtener los nombres de todos los usuarios en un solo llamado
     final usuariosData = await _client
         .from('usuarios')
         .select('id, nombres, apellidos');
 
-    // Convertir la lista de usuarios a un mapa id -> nombre completo
     final nombresUsuarios = <String, String>{
       for (final u in usuariosData)
         u['id'].toString(): '${u['nombres']} ${u['apellidos']}',
@@ -49,11 +44,9 @@ class DashboardService {
     for (final item in vacunaciones) {
       final sectorId = item['sector_id'].toString();
       final vacunadorId = item['usuario_id'].toString();
-      // Usar el nombre del sector; si no se encuentra, mostrar "Sector desconocido"
       final nombreSector =
           nombresSectores[sectorId] ?? 'Sector desconocido';
 
-      // Usar el nombre del vacunador; si no se encuentra, mostrar "Usuario desconocido"
       final nombreVacunador =
           nombresUsuarios[vacunadorId] ?? 'Usuario desconocido';
 

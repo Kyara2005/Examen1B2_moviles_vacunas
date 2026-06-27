@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Inicia sesion con Supabase Auth.
+  // Inicia sesion con Supabase.
   Future<void> _iniciarSesion() async {
     if (!_formKey.currentState!.validate()) return;
 

@@ -25,7 +25,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  // Cambia la contrasena inicial obligatoria.
+  // Cambia la contrasena
   Future<void> _cambiarClave() async {
     if (_claveController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(

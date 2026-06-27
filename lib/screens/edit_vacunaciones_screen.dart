@@ -49,7 +49,7 @@ class _EditVacunacionesScreenState extends State<EditVacunacionesScreen> {
     super.dispose();
   }
 
-  // Actualiza un registro existente.
+  // Actualiza.
   Future<void> _actualizar() async {
     setState(() => _cargando = true);
 

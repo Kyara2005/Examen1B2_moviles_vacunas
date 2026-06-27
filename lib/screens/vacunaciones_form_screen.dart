@@ -60,7 +60,6 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     super.dispose();
   }
 
-  // Obtiene los sectores asignados al vacunador.
   Future<void> _cargarSectores() async {
     try {
       final sectores = await SectorService().obtenerSectoresAsignados(
@@ -69,7 +68,6 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
       if (!mounted) return;
       setState(() {
         _sectores = sectores;
-        // FIX: asignar _sectorId despues de que los items ya existen
         if (sectores.isNotEmpty) {
           _sectorId = sectores.first.id;
         } else if (widget.usuario.sectorId != null) {
@@ -145,7 +143,7 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     }
   }
 
-  // Toma una fotografia con la camara.
+  // Toma una fotografia.
   Future<void> _tomarFoto() async {
     final picker = ImagePicker();
     final imagen = await picker.pickImage(source: ImageSource.camera,imageQuality: 70,);
@@ -154,7 +152,7 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     }
   }
 
-  // Guarda una nueva vacunacion.
+  // Guarda una vacuna.
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     if (_sectorId == null) {
@@ -191,7 +189,6 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registro guardado')),
         );
-        // En lugar de Navigator.pop(context):
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -210,7 +207,6 @@ class _VacunacionesFormScreenState extends State<VacunacionesFormScreen> {
     }
   }
 
-  // Navega de regreso al dashboard.
   void _volverAlDashboard() {
     Navigator.pushReplacement(
       context,

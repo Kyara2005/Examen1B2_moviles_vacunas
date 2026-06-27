@@ -24,14 +24,12 @@ class _UsersScreenState extends State<UsersScreen> {
     _cargarUsuarios();
   }
 
-  // Carga usuarios segun el rol del usuario actual.
   void _cargarUsuarios() {
     final rolAFiltrar =
         widget.usuario.rol == 'coordinador_brigada' ? 'vacunador' : null;
     _usuariosFuture = UserService().obtenerUsuarios(rol: rolAFiltrar);
   }
 
-  // Abre el formulario para crear usuarios.
   Future<void> _mostrarFormulario() async {
     final cedulaController = TextEditingController();
     final nombresController = TextEditingController();
@@ -121,7 +119,6 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
-  // Abre el dialogo para reasignar el sector de un usuario existente.
   Future<void> _mostrarFormularioReasignar(AppUser usuarioAEditar) async {
     String? sectorId = usuarioAEditar.sectorId;
     final sectores = await SectorService().obtenerSectores();
@@ -177,7 +174,6 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
-  // Elimina un usuario de la tabla usuarios.
   Future<void> _eliminarUsuario(String id) async {
     // Confirmar antes de eliminar
     final confirmar = await showDialog<bool>(

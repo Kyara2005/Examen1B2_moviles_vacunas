@@ -5,7 +5,6 @@ import 'supabase_service.dart';
 class UserService {
   final _client = SupabaseService().client;
 
-  // Obtiene usuarios por rol.
   Future<List<AppUser>> obtenerUsuarios({String? rol}) async {
     var consulta = _client.from('usuarios').select();
     if (rol != null) {
@@ -17,7 +16,6 @@ class UserService {
     return data.map<AppUser>((item) => AppUser.fromMap(item)).toList();
   }
 
-  // Crea el usuario en Auth y tambien en la tabla usuarios.
   Future<void> crearUsuario({
     required String cedula,
     required String nombres,
@@ -50,13 +48,11 @@ class UserService {
     });
   }
 
-  // Actualiza los datos basicos y el sector del usuario.
   Future<void> actualizarUsuario(AppUser usuario) async {
     await _client.from('usuarios').update(usuario.toMap()).eq('id', usuario.id);
   }
 
-  // Asigna un sector al coordinador de brigada elegido.
-  // Se llama despues de crear o editar un sector con coordinador asignado.
+  
   Future<void> asignarSectorACoordinador({
     required String coordinadorId,
     required String? sectorId,
@@ -67,7 +63,6 @@ class UserService {
         .eq('id', coordinadorId);
   }
 
-  // Elimina el usuario de la tabla. En Auth se elimina desde Supabase.
   Future<void> eliminarUsuario(String id) async {
     await _client.from('usuarios').delete().eq('id', id);
   }

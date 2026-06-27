@@ -19,7 +19,6 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
     super.dispose();
   }
 
-  // Envia el correo de recuperacion.
   Future<void> _recuperarClave() async {
     setState(() => _cargando = true);
     try {

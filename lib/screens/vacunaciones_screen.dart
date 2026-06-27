@@ -25,14 +25,12 @@ class _VacunacionesScreenState extends State<VacunacionesScreen> {
     _cargarVacunaciones();
   }
 
-  // Obtiene la lista de vacunaciones desde Supabase.
   void _cargarVacunaciones() {
     _vacunacionesFuture = VaccinationService().obtenerVacunaciones(
       widget.usuario,
     );
   }
 
-  // Revisa si el usuario puede editar el registro.
   bool _puedeEditar(Vacunaciones vacunacion) {
     if (widget.usuario.rol == 'coordinador_campana') return true;
     if (widget.usuario.rol == 'coordinador_brigada' &&
@@ -43,7 +41,6 @@ class _VacunacionesScreenState extends State<VacunacionesScreen> {
         widget.usuario.id == vacunacion.usuarioId;
   }
 
-  // Abre la pantalla de edicion.
   Future<void> _editar(Vacunaciones vacunacion) async {
     await Navigator.push(
       context,
@@ -57,7 +54,6 @@ class _VacunacionesScreenState extends State<VacunacionesScreen> {
     setState(_cargarVacunaciones);
   }
 
-  // Elimina un registro de vacunacion.
   Future<void> _eliminar(String id) async {
     await VaccinationService().eliminarVacunacion(id);
     setState(_cargarVacunaciones);

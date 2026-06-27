@@ -9,7 +9,6 @@ class AuthService {
   final SupabaseClient _client = SupabaseService().client;
   final _localStorage = LocalStorageService();
 
-  // Inicia sesion y obtiene los datos del usuario.
   Future<AppUser> login(String correo, String clave) async {
     final respuesta = await _client.auth.signInWithPassword(
       email: correo,
@@ -23,13 +22,12 @@ class AuthService {
 
     final usuario = await obtenerUsuarioActual();
 
-    // Guardar la sesion localmente para funcionar sin internet
+    // Guardar la sesion para funcionar sin internet
     await _localStorage.guardarSesion(usuario);
 
     return usuario;
   }
 
-  // Obtiene el usuario actual desde la tabla usuarios.
   Future<AppUser> obtenerUsuarioActual() async {
     final usuarioAuth = _client.auth.currentUser;
     if (usuarioAuth == null) {
@@ -49,7 +47,6 @@ class AuthService {
     return _localStorage.obtenerSesion();
   }
 
-  // Cambia la clave del usuario autenticado.
   Future<void> cambiarClave(String nuevaClave) async {
     final usuarioAuth = _client.auth.currentUser;
     if (usuarioAuth == null) return;
@@ -61,12 +58,10 @@ class AuthService {
         .eq('id', usuarioAuth.id);
   }
 
-  // Envia el correo para recuperar la contrasena.
   Future<void> recuperarClave(String correo) async {
     await _client.auth.resetPasswordForEmail(correo);
   }
 
-  // Cierra la sesion.
   Future<void> cerrarSesion() async {
     await _client.auth.signOut();
     await _localStorage.borrarSesion();

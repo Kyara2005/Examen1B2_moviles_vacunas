@@ -24,12 +24,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _cargarDatos();
   }
 
-  // Carga los datos principales del dashboard.
+  // Carga los datos.
   void _cargarDatos() {
     _datosFuture = DashboardService().obtenerDatos(widget.usuario);
   }
 
-  // Sincroniza registros pendientes de forma manual.
+  // Sincroniza.
   Future<void> _sincronizar() async {
     await SyncService().sincronizarPendientes();
     setState(_cargarDatos);
@@ -133,7 +133,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   return Card(
                     child: ListTile(
                       leading: const Icon(Icons.person),
-                      // Ahora muestra el nombre real del vacunador
                       title: Text(entrada.key),
                       trailing: Text(
                         '${entrada.value} vacunaciones',

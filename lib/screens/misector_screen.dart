@@ -5,7 +5,7 @@ import '../models/sector.dart';
 import '../services/sector_service.dart';
 import '../widgets/app_drawer.dart';
 
-// Pantalla que muestra el sector asignado al coordinador de brigada.
+// Coordinador de brigada.
 class MySectorScreen extends StatefulWidget {
   final AppUser usuario;
 
@@ -24,20 +24,17 @@ class _MySectorScreenState extends State<MySectorScreen> {
     _cargarSector();
   }
 
-  // Carga el sector asignado al coordinador de brigada.
   void _cargarSector() {
     _sectorFuture = _obtenerMiSector();
   }
 
   Future<Sector?> _obtenerMiSector() async {
-    // Si el usuario no tiene sector asignado, retornar null
     if (widget.usuario.sectorId == null) return null;
 
     final sectores = await SectorService().obtenerSectoresAsignados(
       widget.usuario.id,
     );
 
-    // Retornar el primer sector si existe
     return sectores.isNotEmpty ? sectores.first : null;
   }
 
@@ -59,7 +56,7 @@ class _MySectorScreenState extends State<MySectorScreen> {
 
           final sector = snapshot.data;
 
-          // Si no tiene sector asignado
+          // Sin sector asignado
           if (sector == null) {
             return const Center(
               child: Padding(
@@ -86,7 +83,7 @@ class _MySectorScreenState extends State<MySectorScreen> {
             );
           }
 
-          // Mostrar la informacion del sector asignado
+          // Mostrar la informacion del sector
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [

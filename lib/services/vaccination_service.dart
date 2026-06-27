@@ -14,7 +14,6 @@ class VaccinationService {
   final ConnectivityService _connectivityService = ConnectivityService();
   final LocalStorageService _localStorageService = LocalStorageService();
 
-  // Obtiene la lista de vacunaciones desde Supabase.
   Future<List<Vacunaciones>> obtenerVacunaciones(AppUser usuario) async {
     var consulta = _client.from('vacunaciones').select();
 
@@ -40,7 +39,6 @@ class VaccinationService {
     return data.map<Vacunaciones>((item) => Vacunaciones.fromMap(item)).toList();
   }
 
-  // Guarda una nueva vacunacion o la deja pendiente si no hay internet.
   Future<void> guardarVacunacion(Vacunaciones vacunacion, File? foto) async {
     final tieneInternet = await _connectivityService.tieneInternet();
 
@@ -63,7 +61,6 @@ class VaccinationService {
     });
   }
 
-  // Actualiza un registro existente.
   Future<void> actualizarVacunacion(Vacunaciones vacunacion) async {
     await _client
         .from('vacunaciones')
@@ -71,12 +68,10 @@ class VaccinationService {
         .eq('id', vacunacion.id!);
   }
 
-  // Elimina un registro de vacunacion.
   Future<void> eliminarVacunacion(String id) async {
     await _client.from('vacunaciones').delete().eq('id', id);
   }
 
-  // Sube la fotografia al Storage.
   Future<String> subirFotografia(File foto) async {
     final nombreArchivo = 'foto_${DateTime.now().millisecondsSinceEpoch}.jpg';
     await _client.storage

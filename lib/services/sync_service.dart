@@ -8,7 +8,6 @@ class SyncService {
   final _connectivityService = ConnectivityService();
   final _localStorageService = LocalStorageService();
 
-  // Inicia la sincronizacion automatica cuando vuelve el internet.
   void iniciarSincronizacionAutomatica() {
     _connectivityService.escucharConexion().listen((tieneInternet) async {
       if (tieneInternet) {
@@ -17,7 +16,6 @@ class SyncService {
     });
   }
 
-  // Sube a Supabase todos los registros pendientes.
   Future<void> sincronizarPendientes() async {
     final pendientes = await _localStorageService.obtenerPendientes();
     if (pendientes.isEmpty) return;

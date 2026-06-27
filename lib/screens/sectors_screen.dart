@@ -24,24 +24,20 @@ class _SectorsScreenState extends State<SectorsScreen> {
     _cargarSectores();
   }
 
-  // Obtiene los sectores desde Supabase.
   void _cargarSectores() {
     _sectoresFuture = SectorService().obtenerSectores();
   }
 
-  // Muestra el formulario para crear o editar un sector.
   Future<void> _mostrarFormulario({Sector? sector}) async {
     final nombreController = TextEditingController(text: sector?.nombre ?? '');
     final descripcionController = TextEditingController(
       text: sector?.descripcion ?? '',
     );
 
-    // Para asignar coordinador: cargamos la lista de coordinadores de brigada
     final coordinadores = await UserService().obtenerUsuarios(
       rol: 'coordinador_brigada',
     );
 
-    // Coordinador actualmente asignado a este sector (null si es nuevo)
     String? coordinadorId = sector?.coordinadorId;
 
     if (!mounted) return;
@@ -131,7 +127,7 @@ class _SectorsScreenState extends State<SectorsScreen> {
     );
   }
 
-  // Elimina un sector despues de confirmar.
+  // Elimina un sector.
   Future<void> _eliminarSector(String id) async {
     final confirmar = await showDialog<bool>(
       context: context,

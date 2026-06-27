@@ -26,6 +26,7 @@ void main() async {
 
 class VacunacionApp extends StatelessWidget {
   // Usuario cargado desde el telefono; null si no habia sesion guardada
+  // ignore: strict_top_level_inference, prefer_typing_uninitialized_variables
   final usuarioInicial;
 
   const VacunacionApp({super.key, required this.usuarioInicial});

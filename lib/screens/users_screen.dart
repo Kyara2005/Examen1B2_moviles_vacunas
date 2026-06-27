@@ -134,7 +134,7 @@ class _UsersScreenState extends State<UsersScreen> {
           return AlertDialog(
             title: Text('Reasignar sector a ${usuarioAEditar.nombres}'),
             content: DropdownButtonFormField<String>(
-              value: sectorId,
+              initialValue: sectorId,
               decoration: const InputDecoration(labelText: 'Sector'),
               items: sectores.map((Sector sector) {
                 return DropdownMenuItem(

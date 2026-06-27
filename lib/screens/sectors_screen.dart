@@ -67,7 +67,7 @@ class _SectorsScreenState extends State<SectorsScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: coordinadorId,
+                    initialValue: coordinadorId,
                     decoration: const InputDecoration(
                       labelText: 'Coordinador de brigada',
                     ),

@@ -189,9 +189,11 @@ flutter pub get
 flutter run
 ```
 
---------------------------
+----------------------
 
-# Capturas del funcionamiento
+# 📸 Capturas del funcionamiento
+
+---------------------
 
 ## 🚀 Icono y Splash Screen
 
@@ -218,6 +220,7 @@ flutter run
 </p>
 
 ---
+
 # 👤 Rol: Coordinador
 
 ### Inicio
@@ -228,6 +231,7 @@ flutter run
   <img src="https://github.com/user-attachments/assets/84138792-a00c-4d83-989c-1fdc8c016c88" width="23%">
   <img src="https://github.com/user-attachments/assets/7f57fcd1-2d43-49e6-baf2-9223e65e7e94" width="23%">
 </p>
+
 ### Crear usuarios
 
 <p align="center">
@@ -241,7 +245,8 @@ flutter run
 </p>
 
 ---
-  # 👷 Rol: Brigada
+
+# 👷 Rol: Brigada
 
 ### Inicio
 
@@ -255,7 +260,7 @@ flutter run
   <img src="https://github.com/user-attachments/assets/7582eb21-c0f5-468a-a720-4df6563b1403" width="30%">
 </p>
 
-  ### Editor de vacunaciones
+### Editor de vacunaciones
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/4b91f53f-96a1-4a3b-86ee-2eeca4bfb11d" width="30%">
@@ -268,14 +273,7 @@ flutter run
   <img src="https://github.com/user-attachments/assets/c637d3cb-e573-44c6-b753-2fe2ef4b7f50" width="30%">
 </p>
 
-  <p align="center">
-      <img width="698" height="1600" alt="image" src="https://github.com/user-attachments/assets/4b91f53f-96a1-4a3b-86ee-2eeca4bfb11d" />
-      <img width="698" height="1600" alt="image" src="https://github.com/user-attachments/assets/e2dc6ab1-69b2-420d-9a29-290b40bdce42" />
-  </p>
-  Mi sector
-  <img width="698" height="1600" alt="image" src="https://github.com/user-attachments/assets/c637d3cb-e573-44c6-b753-2fe2ef4b7f50" />
-
-  ### Usuarios
+### Usuarios
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/b8020e31-1422-461f-9331-997533199bf1" width="30%">
@@ -287,7 +285,7 @@ flutter run
   <img src="https://github.com/user-attachments/assets/191c6abd-a52a-4491-87d6-359f8efb2828" width="30%">
 </p>
 
-  ### Perfil
+### Perfil
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/c849a36e-4982-45ee-ad8b-4b3fc167b7e7" width="30%">
@@ -320,5 +318,5 @@ flutter run
 <p align="center">
   <img src="https://github.com/user-attachments/assets/abfb6d4a-4bf5-4d52-983a-fac7e0e2b119" width="30%">
 </p>
-```
+
 

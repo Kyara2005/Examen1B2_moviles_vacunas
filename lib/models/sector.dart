@@ -19,4 +19,13 @@ class Sector {
       coordinadorId: map['coordinador_id']?.toString(),
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'coordinador_id': coordinadorId,
+    };
+  }
 }

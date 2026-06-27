@@ -1,8 +1,12 @@
 import '../models/sector.dart';
 import 'supabase_service.dart';
+import 'connectivity_service.dart';
+import 'local_storage_service.dart';
 
 class SectorService {
   final _client = SupabaseService().client;
+  final _localStorage = LocalStorageService();
+  final _connectivity = ConnectivityService();
 
   // Obtiene todos los sectores.
   Future<List<Sector>> obtenerSectores() async {
@@ -12,6 +16,14 @@ class SectorService {
 
   // Obtiene solo los sectores asignados al usuario.
   Future<List<Sector>> obtenerSectoresAsignados(String usuarioId) async {
+    final hayInternet = await _connectivity.tieneInternet();
+
+    if (!hayInternet) {
+      // Sin internet: usar los sectores guardados en el telefono
+      final sectoresGuardados = await _localStorage.obtenerSectoresGuardados();
+      return sectoresGuardados;
+    }
+
     final usuario = await _client
         .from('usuarios')
         .select('sector_id')
@@ -22,7 +34,12 @@ class SectorService {
     if (sectorId == null) return [];
 
     final data = await _client.from('sectores').select().eq('id', sectorId);
-    return data.map<Sector>((item) => Sector.fromMap(item)).toList();
+    final sectores = data.map<Sector>((item) => Sector.fromMap(item)).toList();
+
+    // Guardar en el telefono para tenerlos disponibles sin internet
+    await _localStorage.guardarSectores(sectores);
+
+    return sectores;
   }
 
   // Crea un nuevo sector.

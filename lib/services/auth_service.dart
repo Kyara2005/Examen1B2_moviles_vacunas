@@ -17,7 +17,27 @@ class AuthService {
 
     final usuarioAuth = respuesta.user;
     if (usuarioAuth == null) {
-      throw Exception('No se pudo iniciar sesion');
+      throw Exception('Correo o contraseña incorrectos');
+    }
+
+    // Si el usuario existe en Auth pero no en la tabla usuarios, mostramos
+    // un mensaje claro de error.
+    final data = await _client
+        .from('usuarios')
+        .select()
+        .eq('id', usuarioAuth.id)
+        .maybeSingle(); // maybeSingle devuelve null si no encuentra, en vez de lanzar excepcion
+
+    if (data == null) {
+      // El usuario existe en Auth pero no tiene fila en la tabla usuarios.
+      // Esto pasa cuando se crea el usuario directo en Supabase Auth sin
+      // insertar el registro en la tabla. Cerramos sesion para no dejar
+      // al usuario en un estado inconsistente.
+      await _client.auth.signOut();
+      throw Exception(
+        'El usuario no tiene perfil en el sistema ya que fue registrado desde Auth.'
+        'Pida al coordinador que lo registre correctamente.',
+      );
     }
 
     final usuario = await obtenerUsuarioActual();
@@ -48,18 +68,28 @@ class AuthService {
   }
 
   Future<void> cambiarClave(String nuevaClave) async {
-    final usuarioAuth = _client.auth.currentUser;
-    if (usuarioAuth == null) return;
-
     await _client.auth.updateUser(UserAttributes(password: nuevaClave));
-    await _client
-        .from('usuarios')
-        .update({'debe_cambiar_clave': false})
-        .eq('id', usuarioAuth.id);
+
+    // Solo actualizar debe_cambiar_clave si hay un usuario autenticado
+    // con perfil en la tabla (en recuperacion puede no haberlo aun cargado)
+    final usuarioAuth = _client.auth.currentUser;
+    if (usuarioAuth != null) {
+      await _client
+          .from('usuarios')
+          .update({'debe_cambiar_clave': false})
+          .eq('id', usuarioAuth.id);
+
+      // Actualizar la sesion local con debe_cambiar_clave en false
+      final usuarioActualizado = await obtenerUsuarioActual();
+      await _localStorage.guardarSesion(usuarioActualizado);
+    }
   }
 
   Future<void> recuperarClave(String correo) async {
-    await _client.auth.resetPasswordForEmail(correo);
+    await _client.auth.resetPasswordForEmail(
+      correo,
+      redirectTo: 'vacumesticos://reset-password',
+    );
   }
 
   Future<void> cerrarSesion() async {

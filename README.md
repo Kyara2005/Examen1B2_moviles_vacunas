@@ -18,6 +18,27 @@ https://youtu.be/dbsKEl0Mnzk
 
 ---
 
+## Credenciales actualizadas
+
+Durante la demostración del video, se realizó un cambio de contraseña en el correo con el rol de coordinador de campaña:
+Credenciales de prueba:
+Coordinador de campaña
+Correo: kyaramaltamirano@gmail.com
+Contraseña: 123456
+
+Coordinador de brigada
+Correo: campana@test.com
+Contraseña: 123456
+
+Vacunador
+Correo: vacunador@test.com
+Contraseña: 123456
+
+Extra:
+Correo: leoealtamiranoa@gmail.com
+Contraseña: Ecuador2026
+
+
 ## Tecnologías utilizadas
 
 | Paquete | Uso |
@@ -217,6 +238,7 @@ flutter run
 <p align="center">
   <img src="https://github.com/user-attachments/assets/e4efe86d-8df8-43c3-9943-f73a52fed74b" width="30%">
   <img src="https://github.com/user-attachments/assets/1f740cc2-35cc-4a16-87ef-50d8996d6296" width="30%">
+  <img src="https://github.com/user-attachments/assets/bb4ff619-2e68-431c-8ddb-7440ca5c70ae" width="30%">
 </p>
 
 ---

@@ -105,7 +105,7 @@ class _SectorsScreenState extends State<SectorsScreen> {
                       sector.id,
                       nombreController.text,
                       descripcionController.text,
-                      sector.coordinadorId,
+                      coordinadorId,
                     );
                   }
 

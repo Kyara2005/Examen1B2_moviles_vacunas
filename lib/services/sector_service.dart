@@ -9,7 +9,13 @@ class SectorService {
   final _connectivity = ConnectivityService();
 
   Future<List<Sector>> obtenerSectores() async {
-    final data = await _client.from('sectores').select().order('nombre');
+    final data = await _client.from('sectores').select('''
+      *,
+      coordinador:usuarios!coordinador_id(
+        nombres,
+        apellidos
+      )
+    ''').order('nombre');
     return data.map<Sector>((item) => Sector.fromMap(item)).toList();
   }
 

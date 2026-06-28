@@ -16,28 +16,33 @@ En el siguiente video se presenta:
 **Video:**
 https://youtu.be/dbsKEl0Mnzk
 
----
-
 ## Credenciales actualizadas
 
-Durante la demostración del video, se realizó un cambio de contraseña en el correo con el rol de coordinador de campaña:
-Credenciales de prueba:
-Coordinador de campaña
-Correo: kyaramaltamirano@gmail.com
-Contraseña: 123456
+Durante la demostración del video se realizó un cambio de contraseña utilizando el usuario con rol de **Coordinador de campaña**.
 
-Coordinador de brigada
-Correo: campana@test.com
-Contraseña: 123456
+### Credenciales de prueba
 
-Vacunador
-Correo: vacunador@test.com
-Contraseña: 123456
+**Coordinador de campaña**  
+Correo: kyaramaltamirano@gmail.com  
+Contraseña: 123456  
 
-Extra:
-Correo: leoealtamiranoa@gmail.com
-Contraseña: Ecuador2026
+**Coordinador de brigada**  
+Correo: campana@test.com  
+Contraseña: 123456  
 
+**Vacunador**  
+Correo: vacunador@test.com  
+Contraseña: 123456  
+
+### Usuario adicional
+
+Correo: leoealtamiranoa@gmail.com  
+Contraseña: Ecuador2026  
+
+### Nota
+Para comprobar la funcionalidad de recuperación de contraseña, utilizar correos reales con dominio **@gmail.com**. Los correos de prueba con dominios falsos no permitirán recibir el enlace de recuperación.
+
+---
 
 ## Tecnologías utilizadas
 
